@@ -1,26 +1,124 @@
-const player = document.getElementById('meu-player');
+const audio = document.getElementById('audio-element');
 
-// 1. Quando a página carregar, recupera o tempo salvo
-window.addEventListener('load', () => {
-    const tempoSalvo = sessionStorage.getItem('tempoMusica');
-    const estavaTocando = sessionStorage.getItem('tocandoMusica');
+// 1. Ao carregar a página, verifica se há um tempo salvo
+window.addEventListener('DOMContentLoaded', () => {
+    const tempoSalvo = sessionStorage.getItem('musicaTempo');
+    const estavaTocando = sessionStorage.getItem('musicaTocando');
 
     if (tempoSalvo) {
-        player.currentTime = parseFloat(tempoSalvo);
+        audio.currentTime = parseFloat(tempoSalvo);
     }
 
     if (estavaTocando === 'true') {
-        player.play().catch(() => {
-            // Navegadores bloqueiam autoplay se não houver interação recente
-            console.log('Clique no play para continuar.');
+        audio.play().catch(() => {
+            // Navegadores podem bloquear autoplay se não houver interação prévia
         });
     }
 });
 
-// 2. Antes de sair da página, salva o segundo atual e se estava tocando
+// 2. Antes de sair da página, salva o segundo atual e o status
 window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('tempoMusica', player.currentTime);
-    sessionStorage.setItem('tocandoMusica', !player.paused);
+    sessionStorage.setItem('musicaTempo', audio.currentTime);
+    sessionStorage.setItem('musicaTocando', !audio.paused);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const audio = document.getElementById("audio-element");
+    const btnPlayPause = document.getElementById("btn-play-pause");
+    const btnPrev = document.getElementById("btn-prev");
+    const btnNext = document.getElementById("btn-next");
+    const volumeSlider = document.getElementById("volume-slider");
+    const trackTitle = document.getElementById("track-title");
+    const statusDot = document.getElementById("status-dot");
+    const iframe = document.getElementById("site-frame");
+
+    // Lista de músicas (substitua pelos caminhos reais dos seus arquivos)
+    const playlist = [
+        { title: "AGGRESSIVE DARK PHONK & HEAVY DUBSTEP", src: "audiofundo.mp3" },
+        { title: "AGGRESSIVE DARK PHONK & HEAVY DUBSTEP", src: "audiofundo.mp3" }
+    ];
+
+    let currentTrackIndex = 0;
+    let isPlaying = false;
+
+    // Carrega a faixa atual
+    function loadTrack(index) {
+        audio.src = playlist[index].src;
+        trackTitle.textContent = playlist[index].title;
+        audio.volume = volumeSlider.value;
+    }
+
+    // Atualiza ícones visuais
+    function updateUI(playing) {
+        isPlaying = playing;
+        btnPlayPause.textContent = playing ? "⏸" : "▶";
+        statusDot.className = playing ? "dot playing" : "dot paused";
+    }
+
+    // Tenta dar play
+    function playAudio() {
+        audio.play().then(() => {
+            updateUI(true);
+        }).catch(() => {
+            // Navegador bloqueou o autoplay inicial; aguardando clique do usuário
+            updateUI(false);
+        });
+    }
+
+    function pauseAudio() {
+        audio.pause();
+        updateUI(false);
+    }
+
+    // Controles dos botões
+    btnPlayPause.addEventListener("click", () => {
+        if (isPlaying) pauseAudio();
+        else playAudio();
+    });
+
+    btnNext.addEventListener("click", () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        loadTrack(currentTrackIndex);
+        playAudio();
+    });
+
+    btnPrev.addEventListener("click", () => {
+        currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+        loadTrack(currentTrackIndex);
+        playAudio();
+    });
+
+    volumeSlider.addEventListener("input", (e) => {
+        audio.volume = e.target.value;
+    });
+
+    // Passa para a próxima música automaticamente ao terminar
+    audio.addEventListener("ended", () => {
+        btnNext.click();
+    });
+
+    // Inicialização
+    loadTrack(currentTrackIndex);
+    playAudio();
+
+    // SOLUÇÃO PARA BLOQUEIO DE AUTOPLAY:
+    // Se o navegador bloqueou o som ao abrir, inicia no primeiro clique do usuário
+    function unlockAudioOnInteraction() {
+        if (!isPlaying) {
+            playAudio();
+        }
+        document.removeEventListener("click", unlockAudioOnInteraction);
+    }
+    document.addEventListener("click", unlockAudioOnInteraction);
+
+    // Também detecta clique dentro das páginas internas (iframe)
+    iframe.addEventListener("load", () => {
+        try {
+            iframe.contentWindow.document.addEventListener("click", unlockAudioOnInteraction);
+        } catch (e) {
+            // Ignora erro caso o iframe carregue um domínio externo
+        }
+    });
 });
 
 document.addEventListener('DOMContentLoaded', () => {
