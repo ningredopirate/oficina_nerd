@@ -17,14 +17,37 @@
 
 <body>
 
+    <!-- PLAYER FIXO NO TOPO -->
+    <header id="music-player-bar">
+        <div class="player-info">
+            <span id="status-dot" class="dot paused"></span>
+            <span id="track-title">Música de Fundo - Faixa 01</span>
+        </div>
+
+        <div class="player-controls">
+            <button id="btn-prev" title="Anterior">⏮</button>
+            <button id="btn-play-pause" title="Play/Pause">▶</button>
+            <button id="btn-next" title="Próxima">⏭</button>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.5" title="Volume">
+        </div>
+
+        <!-- Elemento de Áudio Oculto -->
+        <audio id="audio-element" preload="auto"></audio>
+    </header>
+
+    <!-- ÁREA ONDE AS PÁGINAS DO SITE SERÃO CARREGADAS -->
+    <main id="content-frame-container">
+        <iframe id="site-frame" name="site-frame" src="home.html" frameborder="0"></iframe>
+    </main>
+
     <!-- Cabeçalho e Navegação -->
     <header class="navbar">
         <div class="container nav-container">
-            <a href="index.html"><img class="logofav" src="favicon.ico" alt="Logo Oficina Nerd"></a>
-            <a href="index.html" class="logo">OFICINA<span>NERD</span></a>
+            <a href="Index.html"><img class="logofav" src="favicon.ico" alt="Logo Oficina Nerd"></a>
+            <a href="Index.html" class="logo">OFICINA<span>NERD</span></a>
 
             <nav class="nav-links" id="navLinks">
-                <a href="index.html">Início</a>
+                <a href="Index.html">Início</a>
                 <a href="sistema_operacional.html">Sistemas Operacionais</a>
                 <a href="software.html">Software</a>
                 <a href="#">Hardware</a>
